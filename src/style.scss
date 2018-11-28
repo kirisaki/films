@@ -1,3 +1,30 @@
+html, body, h1, h2, h3, h4, ul, ol, dl, li, dt, dd, p, div, span, img, a, table, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: normal;
+  font-size: 100%;
+  vertical-align:baseline;
+  box-sizing: border-box;
+}
+article, header, footer, aside, figure, figcaption, nav, section { 
+  display:block;
+}
+body {
+  line-height: 1;
+  text-size-adjust: 100%;
+}
+ol, ul {
+  list-style: none;
+  list-style-type: none;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
 h1 {
-    color: red
+  color: red;
 }
