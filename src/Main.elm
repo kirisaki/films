@@ -18,7 +18,7 @@ type alias Model =
 
 init : String -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init src url navKey =
-    ( { position = 1
+    ( { position = 0
       , title = ""
       , slides = []
       }
@@ -32,7 +32,17 @@ type Msg
     | Prev
     | NoOp
       
-
+movePosition : Model -> Int -> Model
+movePosition model dest =
+    let
+        max = List.length model.slides - 1
+        min = 0
+        n = dest
+    in
+        if min <= n && n <= max
+        then { model | position = n }
+        else model
+      
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -47,12 +57,12 @@ update msg model =
             )
 
         Next ->
-            ( { model | position = model.position + 1 }
+            ( movePosition model (model.position + 1)
             , Cmd.none
             )
 
         Prev ->
-            ( { model | position = model.position - 1 }
+            ( movePosition model (model.position - 1)
             , Cmd.none
             )
         NoOp ->
@@ -64,7 +74,7 @@ keyHandler : Sub Msg
 keyHandler =
     let
         toMsg str =
-            case Debug.log "input: " str of
+            case str of
                 "ArrowLeft" -> Prev
                 "ArrowRight" -> Next
                 " " -> Next
