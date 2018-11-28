@@ -20,11 +20,17 @@ init : String -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init src url navKey =
     ( { position = 0
       , title = ""
-      , slides = []
+      , slides = toSlides src
       }
     , Cmd.none
     )
 
+toSlides : String -> List (Html Msg)
+toSlides src =
+    Md.parse Nothing src
+        |> List.filter ((/=) Md.ThematicBreak)
+        |> List.map ( Md.toHtml >> div [ class "slide" ] )
+    
 type Msg
     = ChangedUrl Url
     | ClickedLink Browser.UrlRequest
