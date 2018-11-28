@@ -2,12 +2,13 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
+import Browser.Events
 import Markdown.Block as Md
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Url exposing (Url)
-import Json.Decode as Json
+import Json.Decode as Decode
 
 type alias Model =
     { position : Int
@@ -27,12 +28,14 @@ init src url navKey =
 type Msg
     = ChangedUrl Url
     | ClickedLink Browser.UrlRequest
-    | KeyDown Int
-
+    | Next
+    | Prev
+    | NoOp
+      
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "message: " msg of
+    case msg of
         ChangedUrl url ->
             ( model
             , Cmd.none
@@ -43,29 +46,36 @@ update msg model =
             , Cmd.none
             )
 
-        KeyDown 39 ->  -- Right key
+        Next ->
             ( { model | position = model.position + 1 }
             , Cmd.none
             )
 
-        KeyDown 37 ->  -- Left key
+        Prev ->
             ( { model | position = model.position - 1 }
             , Cmd.none
             )
-
-        KeyDown _ ->
+        NoOp ->
             ( model
             , Cmd.none
             )
 
-        
+keyHandler : Sub Msg
+keyHandler =
+    let
+        toMsg str =
+            case Debug.log "input: " str of
+                "ArrowLeft" -> Prev
+                "ArrowRight" -> Next
+                " " -> Next
+                _ -> NoOp
+        decoder = Decode.map toMsg (Decode.field "key" Decode.string)
+    in
+        Browser.Events.onKeyDown decoder
+            
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-onKeyDown : (Int -> msg) -> Attribute msg
-onKeyDown tagger =
-  on "keydown" (Json.map tagger keyCode)
+subscriptions  _ =
+    keyHandler
 
 document : Model -> Browser.Document Msg
 document model =
@@ -76,8 +86,6 @@ document model =
 view : Model -> List (Html Msg)
 view model = 
     [ div [ class "container"
-          , tabindex 0
-          , onKeyDown KeyDown
           ]
           [ h1 [] [ text (String.fromInt model.position) ]
           ]
