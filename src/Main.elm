@@ -1,45 +1,48 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Navigation as Nav
+import Markdown.Block as Md
 import Html exposing (..)
 import Html.Events exposing (..)
-
-main =
-    Browser.element
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        , view = view
-        }
-
+import Url exposing (Url)
 
 type alias Model =
-    { dieFace : Int
+    { position : Int
+    , title : String
+    , slides : List (Html Msg)
     }
 
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Model 1
+init : String -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init src url navKey =
+    ( { position = 1
+      , title = ""
+      , slides = []
+      }
     , Cmd.none
     )
 
-
 type Msg
-    = Roll
-    | NewFace Int
+    = ChangedUrl Url
+    | ClickedLink Browser.UrlRequest
+    | MovePage Int 
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        Roll ->
+    case Debug.log "message: " msg of
+        ChangedUrl url ->
             ( model
             , Cmd.none
             )
 
-        NewFace newFace ->
-            ( Model newFace
+        ClickedLink req ->
+            ( model
+            , Cmd.none
+            )
+
+        MovePage n ->
+            ( model
             , Cmd.none
             )
 
@@ -49,9 +52,24 @@ subscriptions model =
     Sub.none
 
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ h1 [] [ text (String.fromInt model.dieFace) ]
-        , button [ ] [ text "Roll!" ]
-        ]
+document : Model -> Browser.Document Msg
+document model =
+    { title = model.title
+    , body = view model
+    }
+
+view : Model -> List (Html Msg)
+view model = 
+    [ h1 [] [ text (String.fromInt model.position) ]
+    ]
+
+main : Program String Model Msg
+main =
+    Browser.application
+        { init = init
+        , view = document
+        , update = update
+        , subscriptions = subscriptions
+        , onUrlRequest = ClickedLink
+        , onUrlChange = ChangedUrl
+        }
