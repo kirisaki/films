@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Url exposing (Url)
+import Json.Decode as Json
 
 type alias Model =
     { position : Int
@@ -26,7 +27,7 @@ init src url navKey =
 type Msg
     = ChangedUrl Url
     | ClickedLink Browser.UrlRequest
-    | MovePage Int 
+    | KeyDown Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -42,16 +43,29 @@ update msg model =
             , Cmd.none
             )
 
-        MovePage n ->
+        KeyDown 39 ->  -- Right key
+            ( { model | position = model.position + 1 }
+            , Cmd.none
+            )
+
+        KeyDown 37 ->  -- Left key
+            ( { model | position = model.position - 1 }
+            , Cmd.none
+            )
+
+        KeyDown _ ->
             ( model
             , Cmd.none
             )
 
-
+        
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
+onKeyDown : (Int -> msg) -> Attribute msg
+onKeyDown tagger =
+  on "keydown" (Json.map tagger keyCode)
 
 document : Model -> Browser.Document Msg
 document model =
@@ -61,7 +75,10 @@ document model =
 
 view : Model -> List (Html Msg)
 view model = 
-    [ div [ class "container" ]
+    [ div [ class "container"
+          , tabindex 0
+          , onKeyDown KeyDown
+          ]
           [ h1 [] [ text (String.fromInt model.position) ]
           ]
     ]
