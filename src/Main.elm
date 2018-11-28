@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Markdown.Block as Md
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Url exposing (Url)
 
@@ -60,7 +61,9 @@ document model =
 
 view : Model -> List (Html Msg)
 view model = 
-    [ h1 [] [ text (String.fromInt model.position) ]
+    [ div [ class "container" ]
+          [ h1 [] [ text (String.fromInt model.position) ]
+          ]
     ]
 
 main : Program String Model Msg

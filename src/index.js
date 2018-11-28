@@ -1,7 +1,7 @@
 'use strict'
 
 import './index.html'
-import './scss/style.scss'
+import './style.scss'
 
 import { Elm } from './Main.elm'
 
