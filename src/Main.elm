@@ -7,6 +7,7 @@ import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
 import Json.Decode as Decode
 import Markdown.Block as Md
 import Url exposing (Url)
@@ -20,33 +21,19 @@ type alias Slide =
 
 type alias Model =
     { position : Int
-    , title : String
     , slides : Array Slide
     }
 
 
-init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init _ url navKey =
+init : String -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init loc url navKey =
     ( { position = 0
-      , title = ""
-      , slides = toSlides """
-# aaa
-
----
-
-# bbb
-
-## aaa
-
----
-
-## ccc
-- 1
-- 2
-- 3
-"""
+      , slides = empty
       }
-    , Cmd.none
+    , Http.get
+        { url = loc
+        , expect = Http.expectString ReceiveMarkdown
+        }
    )
 
 
@@ -170,6 +157,7 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | Next
     | Prev
+    | ReceiveMarkdown (Result Http.Error String)
     | NoOp
 
 
@@ -214,7 +202,20 @@ update msg model =
             ( movePosition model (model.position - 1)
             , Cmd.none
             )
+            
+        ReceiveMarkdown (Ok str) ->
+            ( { model | slides = toSlides str }
+            , Cmd.none
+            )
 
+        ReceiveMarkdown (Err e) ->
+            let
+                _ = Debug.log "http error: " e
+            in
+                ( model
+                , Cmd.none
+                )
+            
         NoOp ->
             ( model
             , Cmd.none
@@ -280,7 +281,7 @@ view model =
     ]
 
 
-main : Program () Model Msg
+main : Program String Model Msg
 main =
     Browser.application
         { init = init
