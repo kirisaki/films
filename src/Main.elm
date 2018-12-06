@@ -1,6 +1,6 @@
-module Main exposing (Model, Msg(..), Slide, consArray, document, headArray, init, keyHandler, main, movePosition, split, subscriptions, tailArray, toSlides, update, view, zip, zipArray, zipArrayWith)
+module Main exposing (..)
 
-import Array exposing (Array, empty, fromList, toList)
+import Array exposing (Array, fromList, toList, empty)
 import Browser
 import Browser.Events
 import Browser.Navigation as Nav
@@ -47,7 +47,7 @@ init _ url navKey =
 """
       }
     , Cmd.none
-    )
+   )
 
 
 split : (a -> Bool) -> Array a -> Array (Array a)
