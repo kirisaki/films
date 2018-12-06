@@ -10,8 +10,9 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode
 import Markdown.Block as Md
+import Markdown.Inline
 import Url exposing (Url)
-
+import SyntaxHighlight exposing (useTheme, monokai, elm, toBlockHtml)
 
 type alias Slide =
     { title : String
@@ -109,7 +110,18 @@ zipArrayWith f a b =
             in
             consArray (f x y) (zipArrayWith f xs ys)
 
+customHtmlBlock : Md.Block b i -> List (Html msg)
+customHtmlBlock block =
+    case block of
+        Md.CodeBlock codeType blocks ->
+            [text <| Debug.toString codeType]
 
+        _ ->
+            Md.defaultHtml
+                (Just customHtmlBlock)
+                (Just (Markdown.Inline.toHtml))
+                block
+                    
 toSlides : String -> Array Slide
 toSlides src =
     let
@@ -147,7 +159,7 @@ toSlides src =
             padding "" headings
 
         contents =
-            Array.map (toList >> List.map Md.toHtml >> List.concat >> div [ class "slide" ]) blocks
+            Array.map (toList >> List.map customHtmlBlock >> List.concat >> div [ class "slide" ]) blocks
     in
     zipArrayWith Slide titles contents
 
